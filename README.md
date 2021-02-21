@@ -1,6 +1,10 @@
-### start
+## START
 yarn watch
 yarn dev
+
+## GRAPHQL
+
+http://localhost:4000/graphql
 
 ## DB
 
