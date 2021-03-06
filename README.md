@@ -17,3 +17,6 @@ pass admin123
 
 ### display tables
 \dt
+
+## Redis
+https://flaviocopes.com/redis-installation/
