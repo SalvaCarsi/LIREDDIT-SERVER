@@ -2,6 +2,7 @@ import {
   Resolver,
   Ctx,
   Mutation,
+  Query,
   Arg,
   InputType,
   ObjectType,
@@ -40,10 +41,20 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req, em }: MyContext) {
+    // @ts-ignore
+    const userId = req.session.userId
+    if (!userId) return null
+
+    const user = await em.findOne(User, { id: userId })
+    return user
+  }
+
   @Mutation(() => UserResponse)
   async register(
     @Arg('options') options: UsernamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     if (options.username.length <= 2) {
       return {
@@ -77,14 +88,18 @@ export class UserResolver {
     } catch (error) {
       if (error.code === '23505') {
         return {
-          errors: [{
-            field: 'username',
-            message: 'username already taken',
-          }]
+          errors: [
+            {
+              field: 'username',
+              message: 'username already taken',
+            },
+          ],
         }
-
       }
     }
+
+    // @ts-ignore
+    req.session.userId = user.id
 
     return { user }
   }
